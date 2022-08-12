@@ -1,6 +1,6 @@
 from flask import Flask
 
-from queryFunctions import insert_activity_db
+from queryFunctions import insert_activity_db, get_single_user_total_points_db
 
 application = Flask(__name__)
 
@@ -12,6 +12,12 @@ def hello_world():  # put application's code here
 @application.route('/insertActivity')
 def insert_activity():
     insert_activity_db("1234-1234-1234-1234", "Cycling", "1")
+    return 'Success maybe'\
+
+@application.route('/getSingleUserTotalPoints')
+def get_single_user_total_points():
+    userData = get_single_user_total_points_db("1234-1234-1234-1234")
+    print(userData)
     return 'Success maybe'
 
 if __name__ == '__main__':

@@ -31,3 +31,26 @@ def insert_activity_db(userId, activity, carbonSaving):
         # Handle response
     except BaseException as error:
         print("Unknown error while putting item: " + error.response['Error']['Message'])
+
+def get_single_user_total_points_db(userId):
+    #For testing locally
+    dynamodb_client_local = boto3.client("dynamodb", endpoint_url="http://localhost:8000")
+    #For Deployment
+    #dynamodb_client_cloud = boto3.client("dynamodb", region_name="us-east-2")
+
+    try:
+        response = dynamodb_client_local.scan(
+            TableName="Activity",
+            FilterExpression='#n = :n',
+            ExpressionAttributeNames={
+                "#n": "UserId"
+            },
+            ExpressionAttributeValues={
+                ":n": {"S": userId}
+            }
+        )
+
+        return response["Items"]
+        # Handle response
+    except BaseException as error:
+        return "Unknown error while querying: " + error.response['Error']['Message']
