@@ -1,5 +1,7 @@
+from dynamodb_json import json_util as json
 from datetime import datetime
 import uuid
+import pandas as pd
 
 import boto3
 
@@ -32,7 +34,7 @@ def insert_activity_db(userId, activity, carbonSaving):
     except BaseException as error:
         print("Unknown error while putting item: " + error.response['Error']['Message'])
 
-def get_single_user_total_points_db(userId):
+def get_single_user_info(userId):
     #For testing locally
     dynamodb_client_local = boto3.client("dynamodb", endpoint_url="http://localhost:8000")
     #For Deployment
@@ -54,3 +56,10 @@ def get_single_user_total_points_db(userId):
         # Handle response
     except BaseException as error:
         return "Unknown error while querying: " + error.response['Error']['Message']
+
+
+def get_single_user_total_points_db(userId):
+    userData = get_single_user_info(userId)
+    df = pd.DataFrame(json.loads(userData))
+    sumPoints = df['Carbon_Saving'].sum()
+    return sumPoints
