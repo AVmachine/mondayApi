@@ -5,7 +5,7 @@ import pandas as pd
 
 import boto3
 
-def insert_activity_db(userId, activity, carbonSaving):
+def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
     #For testing locally
     dynamodb_client_local = boto3.client("dynamodb", endpoint_url="http://localhost:8000")
     #For deployment
@@ -22,14 +22,15 @@ def insert_activity_db(userId, activity, carbonSaving):
             "UserId": {"S": userId},
             "Activity_Performed": {"S": activity},
             "Carbon_Saving": {"N": carbonSaving},
-            "Insert_At": {"S": str(newDateTime)}
+            "Insert_At": {"S": str(newDateTime)},
+            "Team_Id": {"S": teamId},
+            "Account_Id": {"S":accountId}
         }
     }
 
     try:
         response = dynamodb_client_local.put_item(**activityInfo)
         print("Successfully put item.")
-        print(response)
         # Handle response
     except BaseException as error:
         print("Unknown error while putting item: " + error.response['Error']['Message'])
@@ -63,3 +64,9 @@ def get_single_user_total_points_db(userId):
     df = pd.DataFrame(json.loads(userData))
     sumPoints = df['Carbon_Saving'].sum()
     return sumPoints
+
+# def get_single_user_points_per_month_by_week(userId):
+#     userData = get_single_user_info(userId)
+#     df = pd.DataFrame(json.loads(userData))
+#     sumPoints = df['Carbon_Saving'].sum()
+#     return sumPoints

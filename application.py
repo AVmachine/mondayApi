@@ -1,6 +1,5 @@
-import json
 
-from flask import Flask
+from flask import Flask, request
 
 from queryFunctions import insert_activity_db, get_single_user_total_points_db
 
@@ -11,12 +10,13 @@ application = Flask(__name__)
 def hello_world():  # put application's code here
     return 'Hello World!'
 
-@application.route('/insertActivity')
+@application.route('/insertActivity', methods=['POST'])
 def insert_activity():
-    insert_activity_db("1234-1234-1234-1234", "Cycling", "1")
-    return 'Success maybe'
+    requestData = request.get_json()
+    insert_activity_db(requestData["userId"], requestData["Activity"], requestData["Carbon_Savings"], requestData["TeamId"], requestData["AccountId"])
+    return 'true'
 
-@application.route('/getSingleUserTotalPoints')
+@application.route('/getSingleUserTotalPoints', methods=['GET'])
 def get_single_user_total_points():
     totalPoints = get_single_user_total_points_db("1234-1234-1234-1234")
     return str(totalPoints)
