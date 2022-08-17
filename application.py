@@ -1,7 +1,8 @@
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 
-from queryFunctions import insert_activity_db, get_single_user_total_points_db
+from queryFunctions import insert_activity_db, get_single_user_total_points_db, \
+    get_single_user_points_per_month_by_week_db
 
 application = Flask(__name__)
 
@@ -18,8 +19,15 @@ def insert_activity():
 
 @application.route('/getSingleUserTotalPoints', methods=['GET'])
 def get_single_user_total_points():
-    totalPoints = get_single_user_total_points_db("1234-1234-1234-1234")
+    requestData = request.get_json()
+    totalPoints = get_single_user_total_points_db(requestData["userId"])
     return str(totalPoints)
+
+@application.route('/getSingleUserTotalPointsPerMonthByWeek', methods=['GET'])
+def get_single_user_points_per_month_by_week():
+    requestData = request.get_json()
+    totalPoints = get_single_user_points_per_month_by_week_db(requestData["userId"])
+    return totalPoints
 
 if __name__ == '__main__':
     application.debug = True

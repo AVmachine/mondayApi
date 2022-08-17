@@ -1,7 +1,7 @@
-from dynamodb_json import json_util as json
-from datetime import datetime
+from dynamodb_json import json_util as jsondy
 import uuid
 import pandas as pd
+from datetime import datetime
 
 import boto3
 
@@ -61,12 +61,15 @@ def get_single_user_info(userId):
 
 def get_single_user_total_points_db(userId):
     userData = get_single_user_info(userId)
-    df = pd.DataFrame(json.loads(userData))
+    df = pd.DataFrame(jsondy.loads(userData))
     sumPoints = df['Carbon_Saving'].sum()
     return sumPoints
 
-# def get_single_user_points_per_month_by_week(userId):
-#     userData = get_single_user_info(userId)
-#     df = pd.DataFrame(json.loads(userData))
-#     sumPoints = df['Carbon_Saving'].sum()
-#     return sumPoints
+def get_single_user_points_per_month_by_week_db(userId):
+    userData = get_single_user_info(userId)
+    df = pd.DataFrame(jsondy.loads(userData))
+    df['Insert_At'] = pd.to_datetime(df['Insert_At'])
+    df2 = df.groupby([pd.Grouper(key='Insert_At', freq='W-SUN')])['Carbon_Saving'].sum()
+    jsonStr = df2.to_json()
+    return jsonStr
+
