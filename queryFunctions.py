@@ -27,12 +27,12 @@ def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
             "Account_Id": {"S":accountId}
         }
     }
-
     try:
         response = dynamodb_client_local.put_item(**activityInfo)
         print("Successfully put item.")
         # Handle response
     except BaseException as error:
+        print(error)
         print("Unknown error while putting item: " + error.response['Error']['Message'])
 
 def get_single_user_info(userId):
@@ -72,4 +72,3 @@ def get_single_user_points_per_month_by_week_db(userId):
     df2 = df.groupby([pd.Grouper(key='Insert_At', freq='W-SUN')])['Carbon_Saving'].sum()
     jsonStr = df2.to_json()
     return jsonStr
-

@@ -17,10 +17,9 @@ def insert_activity():
     insert_activity_db(requestData["userId"], requestData["Activity"], requestData["Carbon_Savings"], requestData["TeamId"], requestData["AccountId"])
     return 'true'
 
-@application.route('/getSingleUserTotalPoints', methods=['GET'])
-def get_single_user_total_points():
-    requestData = request.get_json()
-    totalPoints = get_single_user_total_points_db(requestData["userId"])
+@application.route('/getSingleUserTotalPoints/<userId>', methods=['GET'])
+def get_single_user_total_points(userId):
+    totalPoints = get_single_user_total_points_db(str(userId))
     return str(totalPoints)
 
 @application.route('/getSingleUserTotalPointsPerMonthByWeek', methods=['GET'])
