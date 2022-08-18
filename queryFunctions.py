@@ -1,4 +1,4 @@
-from dynamodb_json import json_util as jsondy
+from dynamodb_json import json_util as json_dy
 import uuid
 import pandas as pd
 from datetime import datetime
@@ -61,14 +61,24 @@ def get_single_user_info(userId):
 
 def get_single_user_total_points_db(userId):
     userData = get_single_user_info(userId)
-    df = pd.DataFrame(jsondy.loads(userData))
+    df = pd.DataFrame(json_dy.loads(userData))
     sumPoints = df['Carbon_Saving'].sum()
     return sumPoints
 
 def get_single_user_points_per_month_by_week_db(userId):
     userData = get_single_user_info(userId)
-    df = pd.DataFrame(jsondy.loads(userData))
+    df = pd.DataFrame(json_dy.loads(userData))
     df['Insert_At'] = pd.to_datetime(df['Insert_At'])
     df2 = df.groupby([pd.Grouper(key='Insert_At', freq='W-SUN')])['Carbon_Saving'].sum()
     jsonStr = df2.to_json()
     return jsonStr
+
+def get_single_user_points_per_week_per_activity_db(userId):
+    userData = get_single_user_info(userId)
+    df = pd.DataFrame(json_dy.loads(userData))
+    df['Insert_At'] = pd.to_datetime(df['Insert_At'])
+    df2 = df.groupby(['Activity_Performed',pd.Grouper(key='Insert_At', freq='W-SUN')])['Carbon_Saving'].sum()
+    jsonStr = df2.to_json()
+    print(jsonStr)
+    return jsonStr
+
