@@ -2,7 +2,7 @@ from dynamodb_json import json_util as jsondy
 import uuid
 import pandas as pd
 from datetime import datetime
-
+from boto3.dynamodb.conditions import Key
 import boto3
 
 def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
@@ -23,8 +23,8 @@ def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
             "Activity_Performed": {"S": activity},
             "Carbon_Saving": {"N": carbonSaving},
             "Insert_At": {"S": str(newDateTime)},
-            "Team_Id": {"S": teamId},
-            "Account_Id": {"S":accountId}
+            "TeamId": {"S": teamId},
+            "AccountId": {"S":accountId}
         }
     }
     try:
@@ -72,3 +72,43 @@ def get_single_user_points_per_month_by_week_db(userId):
     df2 = df.groupby([pd.Grouper(key='Insert_At', freq='W-SUN')])['Carbon_Saving'].sum()
     jsonStr = df2.to_json()
     return jsonStr
+
+def get_teams():
+    dynamodb_client_local = boto3.client("dynamodb", endpoint_url="http://localhost:8000")
+    try:
+        response = dynamodb_client_local.scan(
+            TableName="Activity"
+        )
+
+        return response["Items"]
+        # Handle response
+    except BaseException as error:
+        return "Unknown error while querying: " + error.response['Error']['Message']    
+
+def get_team(teamId):
+    dynamodb_client_local = boto3.resource("dynamodb", endpoint_url="http://localhost:8000")
+    try:
+        #response = dynamodb_client_local.scan(
+        #    TableName="Activity"
+        #)
+        table = dynamodb_client_local.Table("Activity")
+        response = table.query(
+            IndexName='ActivityGsi',
+            KeyConditionExpression=Key('TeamId').eq(str(teamId))
+        )
+        return response["Items"]
+        # Handle response
+    except BaseException as error:
+        return "Unknown error while querying: " + error.response['Error']['Message'] 
+
+def get_teams_point_db():
+    teamData = get_teams()
+    df = pd.DataFrame(jsondy.loads(teamData))
+    df2 = df.groupby([pd.Grouper(key='TeamId')])['Carbon_Saving'].sum()
+    return df2.to_json()
+
+def get_team_points_db(teamId):
+    teamData = get_team(teamId)
+    df = pd.DataFrame(jsondy.loads(teamData))
+    df2 = df.groupby([pd.Grouper(key='TeamId')])['Carbon_Saving'].sum()
+    return df2.to_json()
