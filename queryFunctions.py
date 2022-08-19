@@ -6,13 +6,16 @@ from boto3.dynamodb.conditions import Key
 import boto3
 
 
+
 def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
     # For testing locally
-    dynamodb_client_local = boto3.client(
-        "dynamodb", endpoint_url="http://localhost:8000"
-    )
+    dynamodb_client_local = boto3.client("dynamodb", endpoint_url="http://localhost:8000")
     # For deployment
-    # dynamodb_client_cloud = boto3.client("dynamodb", region_name="us-east-2")
+    # dynamodb_client_cloud = boto3.client(
+    #      "dynamodb",
+    #      region_name="us-east-2",
+    #      aws_access_key_id="AccessKeyIdGoesHere",
+    #      aws_secret_access_key="SecretKeyGoesHere")
 
     newUuid = uuid.uuid4()
     newDateTime = datetime.now()
