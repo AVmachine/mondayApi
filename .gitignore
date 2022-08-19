@@ -7,5 +7,4 @@ venv
 templates
 /.idea
 __pycache__/
-activity.json
 update_activity.json
