@@ -9,6 +9,7 @@ from queryFunctions import (
     get_team_points_db,
     get_single_user_points_per_month_by_week_db,
     get_single_user_points_per_week_per_activity_db,
+    get_team_weekly_stats_db
 )
 
 application = Flask(__name__)
@@ -71,6 +72,10 @@ def get_team_points(teamId):
     teamData = get_team_points_db(teamId)
     return teamData
 
+@application.route("/getTeamWeeklyStats/<teamId>", methods=["GET"])
+def get_team_weekly_stats(teamId):
+    teamData = get_team_weekly_stats_db(teamId)
+    return teamData
 
 if __name__ == "__main__":
     application.debug = True
