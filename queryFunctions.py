@@ -102,6 +102,7 @@ def get_team(teamId):
         response = table.query(
             IndexName="ActivityGsi",
             KeyConditionExpression=Key("TeamId").eq(str(teamId)),
+            ProjectionExpression = "Carbon_Saving,Activity_Performed,Insert_At"
         )
         return response["Items"]
         # Handle response
@@ -122,7 +123,6 @@ def get_team_points_db(teamId):
     df2 = df.groupby([pd.Grouper(key="TeamId")])["Carbon_Saving"].sum()
     return df2.to_json()
 
-
 def get_single_user_points_per_week_per_activity_db(userId):
     userData = get_single_user_info(userId)
     df = pd.DataFrame(json_dy.loads(userData))
@@ -133,3 +133,13 @@ def get_single_user_points_per_week_per_activity_db(userId):
     jsonStr = df2.to_json()
     print(jsonStr)
     return jsonStr
+
+def get_team_weekly_stats_db(teamId):
+    teamData = get_team(teamId)
+    df = pd.DataFrame(json_dy.loads(teamData))
+    df["Insert_At"] = pd.to_datetime(df["Insert_At"])
+    df2 = df.groupby(["Activity_Performed", pd.Grouper(key="Insert_At", freq="W-SUN")])[
+        "Carbon_Saving"
+    ].sum()
+    return df2.to_json()
+    
