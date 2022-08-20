@@ -35,7 +35,7 @@ def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
         },
     }
     try:
-        response = dynamodb_client_local.put_item(**activityInfo)
+        response = dynamodb_client_cloud.put_item(**activityInfo)
         print("Successfully put item.")
         # Handle response
     except BaseException as error:
@@ -46,7 +46,7 @@ def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
 def get_single_user_info(userId):
 
     try:
-        response = dynamodb_client_local.scan(
+        response = dynamodb_client_cloud.scan(
             TableName="Activity",
             FilterExpression="#n = :n",
             ExpressionAttributeNames={"#n": "UserId"},
@@ -78,7 +78,7 @@ def get_single_user_points_per_month_by_week_db(userId):
 def get_teams():
 
     try:
-        response = dynamodb_client_local.scan(TableName="Activity")
+        response = dynamodb_client_cloud.scan(TableName="Activity")
 
         return response["Items"]
         # Handle response
@@ -89,7 +89,7 @@ def get_teams():
 def get_team(teamId):
 
     try:
-        table = dynamodb_client_local.Table("Activity")
+        table = dynamodb_client_cloud.Table("Activity")
         response = table.query(
             IndexName="ActivityGsi",
             KeyConditionExpression=Key("TeamId").eq(str(teamId)),
