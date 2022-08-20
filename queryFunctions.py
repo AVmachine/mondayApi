@@ -4,18 +4,19 @@ import pandas as pd
 from datetime import datetime
 from boto3.dynamodb.conditions import Key
 import boto3
+import os
 
-
+# For testing locally
+dynamodb_client_local = boto3.client("dynamodb", endpoint_url="http://localhost:8000")
+# For deployment
+dynamodb_client_cloud = boto3.client(
+    "dynamodb",
+    region_name=os.environ['region'],
+    aws_access_key_id=os.environ['access_key'],
+    aws_secret_access_key=os.environ['secret_key'])
 
 def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
-    # For testing locally
-    dynamodb_client_local = boto3.client("dynamodb", endpoint_url="http://localhost:8000")
-    # For deployment
-    # dynamodb_client_cloud = boto3.client(
-    #      "dynamodb",
-    #      region_name="us-east-2",
-    #      aws_access_key_id="AccessKeyIdGoesHere",
-    #      aws_secret_access_key="SecretKeyGoesHere")
+
 
     newUuid = uuid.uuid4()
     newDateTime = datetime.now()
@@ -43,12 +44,6 @@ def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
 
 
 def get_single_user_info(userId):
-    # For testing locally
-    dynamodb_client_local = boto3.client(
-        "dynamodb", endpoint_url="http://localhost:8000"
-    )
-    # For Deployment
-    # dynamodb_client_cloud = boto3.client("dynamodb", region_name="us-east-2")
 
     try:
         response = dynamodb_client_local.scan(
@@ -81,9 +76,7 @@ def get_single_user_points_per_month_by_week_db(userId):
 
 
 def get_teams():
-    dynamodb_client_local = boto3.client(
-        "dynamodb", endpoint_url="http://localhost:8000"
-    )
+
     try:
         response = dynamodb_client_local.scan(TableName="Activity")
 
@@ -94,9 +87,7 @@ def get_teams():
 
 
 def get_team(teamId):
-    dynamodb_client_local = boto3.resource(
-        "dynamodb", endpoint_url="http://localhost:8000"
-    )
+
     try:
         table = dynamodb_client_local.Table("Activity")
         response = table.query(
@@ -120,7 +111,7 @@ def get_teams_point_db():
 def get_team_points_db(teamId):
     teamData = get_team(teamId)
     df = pd.DataFrame(json_dy.loads(teamData))
-    df2 = df.groupby([pd.Grouper(key="TeamId")])["Carbon_Saving"].sum()
+    df2 = df.groupby(["TeamId"])["Carbon_Saving"].sum()
     return df2.to_json()
 
 def get_single_user_points_per_week_per_activity_db(userId):
