@@ -111,7 +111,7 @@ def get_teams_point_db():
 def get_team_points_db(teamId):
     teamData = get_team(teamId)
     df = pd.DataFrame(json_dy.loads(teamData))
-    df2 = df.groupby(["TeamId"])["Carbon_Saving"].sum()
+    df2 = df.groupby([pd.Grouper(key="TeamId")])["Carbon_Saving"].sum()
     return df2.to_json()
 
 def get_single_user_points_per_week_per_activity_db(userId):
