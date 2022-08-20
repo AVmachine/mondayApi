@@ -7,7 +7,7 @@ import boto3
 import os
 
 # For testing locally
-dynamodb_client_local = boto3.client("dynamodb", endpoint_url="http://localhost:8000")
+#dynamodb_client_local = boto3.client("dynamodb", endpoint_url="http://localhost:8000")
 # For deployment
 dynamodb_client_cloud = boto3.client(
     "dynamodb",
