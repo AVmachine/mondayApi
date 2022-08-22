@@ -132,6 +132,17 @@ def get_single_user_points_per_week_per_activity_db(userId):
     print(jsonStr)
     return jsonStr
 
+def get_single_user_points_ytd_by_activity_db(userId):
+    userData = get_single_user_info(userId)
+    df = pd.DataFrame(json_dy.loads(userData))
+    df["Insert_At"] = pd.to_datetime(df["Insert_At"])
+    df2 = df.groupby(["Activity_Performed", pd.Grouper(key="Insert_At", freq="Y")])[
+        "Carbon_Saving"
+    ].sum()
+    jsonStr = df2.to_json()
+    print(jsonStr)
+    return jsonStr
+
 def get_team_weekly_stats_db(teamId):
     teamData = get_team(teamId)
     df = pd.DataFrame(json_dy.loads(teamData))

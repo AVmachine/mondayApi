@@ -9,7 +9,7 @@ from queryFunctions import (
     get_team_points_db,
     get_single_user_points_per_month_by_week_db,
     get_single_user_points_per_week_per_activity_db,
-    get_team_weekly_stats_db
+    get_team_weekly_stats_db, get_single_user_points_ytd_by_activity_db
 )
 
 application = Flask(__name__)
@@ -58,6 +58,15 @@ def get_single_user_points_per_week_per_activity(userId):
         str(userId)
     )
     return listPointsMonthByActivity
+
+@application.route(
+    "/getSingleUserTotalPointsYTDByActivity/<userId>", methods=["GET"]
+)
+def get_single_user_points_ytd_by_activity(userId):
+    listPointsYTDByActivity = get_single_user_points_ytd_by_activity_db(
+        str(userId)
+    )
+    return listPointsYTDByActivity
 
 
 @application.route("/getTeamsPoint", methods=["GET"])
