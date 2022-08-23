@@ -151,4 +151,44 @@ def get_team_weekly_stats_db(teamId):
         "Carbon_Saving"
     ].sum()
     return df2.to_json()
-    
+
+def get_leaderboard_stats(accountId):
+    dynamodb_client = create_dynamodb_client_local()
+    try:
+        response = dynamodb_client.scan(
+            TableName="Activity",
+            FilterExpression="#c58a0 = :c58a0",
+            ExpressionAttributeNames={"#c58a0": "AccountId"},
+            ExpressionAttributeValues={":c58a0": {"S": accountId}}
+        )
+        return response["Items"]
+        # Handle response
+    except BaseException as error:
+        return "Unknown error while querying: " + error.response["Error"]["Message"]
+
+def get_leaderboard_monthly_stats_db(accountId):
+    monthyStats = get_leaderboard_stats(accountId)
+    df = pd.DataFrame(json_dy.loads(monthyStats))
+    df["Insert_At"] = pd.to_datetime(df["Insert_At"])
+    df2 = df.groupby(["UserId", pd.Grouper(key="Insert_At", freq="M")])[
+        "Carbon_Saving"
+    ].sum()
+    return df2.to_json()
+
+def get_leaderboard_monthly_stats_db(accountId):
+    monthyStats = get_leaderboard_stats(accountId)
+    df = pd.DataFrame(json_dy.loads(monthyStats))
+    df["Insert_At"] = pd.to_datetime(df["Insert_At"])
+    df2 = df.groupby(["UserId", pd.Grouper(key="Insert_At", freq="M")])[
+        "Carbon_Saving"
+    ].sum()
+    return df2.to_json()
+
+def get_leaderboard_yearly_stats_db(accountId):
+    monthyStats = get_leaderboard_stats(accountId)
+    df = pd.DataFrame(json_dy.loads(monthyStats))
+    df["Insert_At"] = pd.to_datetime(df["Insert_At"])
+    df2 = df.groupby(["UserId", pd.Grouper(key="Insert_At", freq="Y")])[
+        "Carbon_Saving"
+    ].sum()
+    return df2.to_json()

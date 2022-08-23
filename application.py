@@ -9,7 +9,8 @@ from queryFunctions import (
     get_team_points_db,
     get_single_user_points_per_month_by_week_db,
     get_single_user_points_per_week_per_activity_db,
-    get_team_weekly_stats_db, get_single_user_points_ytd_by_activity_db
+    get_team_weekly_stats_db, get_single_user_points_ytd_by_activity_db, get_leaderboard_monthly_stats_db,
+    get_leaderboard_yearly_stats_db
 )
 
 application = Flask(__name__)
@@ -83,6 +84,17 @@ def get_team_points(teamId):
 def get_team_weekly_stats(teamId):
     teamData = get_team_weekly_stats_db(teamId)
     return teamData
+
+@application.route("/getLeaderboardMonthlyStats/<accountId>", methods=["GET"])
+def get_leaderboard_monthly_stats(accountId):
+    monthlyStats = get_leaderboard_monthly_stats_db(accountId)
+    return monthlyStats
+
+@application.route("/getLeaderboardYearlyStats/<accountId>", methods=["GET"])
+def get_leaderboard_yearly_stats(accountId):
+    yearlyStats = get_leaderboard_yearly_stats_db(accountId)
+    return yearlyStats
+
 
 if __name__ == "__main__":
     application.debug = True
