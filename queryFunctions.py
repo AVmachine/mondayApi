@@ -2,11 +2,9 @@ from dynamodb_json import json_util as json_dy
 import uuid
 import pandas as pd
 from datetime import datetime
-from boto3.dynamodb.conditions import Key
 import boto3
 import os
-
-
+import json
 
 def create_dynamodb_client_local(region="us-east-1"):
     return boto3.client("dynamodb",
@@ -18,8 +16,6 @@ def create_dynamodb_client_cloud():
                         region_name=os.environ['region'],
                         aws_access_key_id=os.environ['access_key'],
                         aws_secret_access_key=os.environ['secret_key'])
-
-
 
 def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
     dynamodb_client = create_dynamodb_client_cloud()
@@ -84,7 +80,6 @@ def get_teams():
     dynamodb_client = create_dynamodb_client_cloud()
     try:
         response = dynamodb_client.scan(TableName="Activity")
-
         return response["Items"]
         # Handle response
     except BaseException as error:
@@ -147,19 +142,20 @@ def get_team_weekly_stats_db(teamId):
     teamData = get_team(teamId)
     df = pd.DataFrame(json_dy.loads(teamData))
     df["Insert_At"] = pd.to_datetime(df["Insert_At"])
-    df2 = df.groupby(["Activity_Performed", pd.Grouper(key="Insert_At", freq="W-SUN")])[
+    df2 = df.groupby(["Activity_Performed", pd.Grouper(key="Insert_At", freq="W-SUN")],as_index=False)[
         "Carbon_Saving"
     ].sum()
-    return df2.to_json()
+    change_to = json.dumps(df2.to_dict(orient='records'))
+    return change_to
 
 def get_team_monthly_stats_db(teamId):
     teamData = get_team(teamId)
     df = pd.DataFrame(json_dy.loads(teamData))
     df["Insert_At"] = pd.to_datetime(df["Insert_At"])
-    df2 = df.groupby(["Activity_Performed", pd.Grouper(key="Insert_At", freq="M")])[
+    df2 = df.groupby(["Activity_Performed", pd.Grouper(key="Insert_At", freq="M")], as_index=False)[
         "Carbon_Saving"
     ].sum()
-    return df2.to_json()
+    return json.dumps(df2.to_dict(orient='records'))
 
 def get_leaderboard_stats(accountId):
     dynamodb_client = create_dynamodb_client_cloud()
