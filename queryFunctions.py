@@ -13,7 +13,7 @@ def create_dynamodb_client_local(region="us-east-1"):
                         endpoint_url="http://localhost:8000",
                         region_name = 'us-east-1')
 
-def create_dynamodb_client_cloud(region="us-east-1"):
+def create_dynamodb_client_cloud():
     return boto3.client("dynamodb",
                         region_name=os.environ['region'],
                         aws_access_key_id=os.environ['access_key'],
@@ -22,7 +22,7 @@ def create_dynamodb_client_cloud(region="us-east-1"):
 
 
 def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
-    dynamodb_client = create_dynamodb_client_local()
+    dynamodb_client = create_dynamodb_client_cloud()
     newUuid = uuid.uuid4()
     newDateTime = datetime.now()
 
@@ -49,7 +49,7 @@ def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
 
 
 def get_single_user_info(userId):
-    dynamodb_client = create_dynamodb_client_local()
+    dynamodb_client = create_dynamodb_client_cloud()
     try:
         response = dynamodb_client.scan(
             TableName="Activity",
@@ -81,7 +81,7 @@ def get_single_user_points_per_month_by_week_db(userId):
 
 
 def get_teams():
-    dynamodb_client = create_dynamodb_client_local()
+    dynamodb_client = create_dynamodb_client_cloud()
     try:
         response = dynamodb_client.scan(TableName="Activity")
 
@@ -92,7 +92,7 @@ def get_teams():
 
 
 def get_team(teamId):
-    dynamodb_client = create_dynamodb_client_local()
+    dynamodb_client = create_dynamodb_client_cloud()
     try:
         response = dynamodb_client.scan(
             TableName= "Activity",
@@ -162,7 +162,7 @@ def get_team_monthly_stats_db(teamId):
     return df2.to_json()
 
 def get_leaderboard_stats(accountId):
-    dynamodb_client = create_dynamodb_client_local()
+    dynamodb_client = create_dynamodb_client_cloud()
     try:
         response = dynamodb_client.scan(
             TableName="Activity",
