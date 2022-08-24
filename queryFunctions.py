@@ -152,6 +152,15 @@ def get_team_weekly_stats_db(teamId):
     ].sum()
     return df2.to_json()
 
+def get_team_monthly_stats_db(teamId):
+    teamData = get_team(teamId)
+    df = pd.DataFrame(json_dy.loads(teamData))
+    df["Insert_At"] = pd.to_datetime(df["Insert_At"])
+    df2 = df.groupby(["Activity_Performed", pd.Grouper(key="Insert_At", freq="M")])[
+        "Carbon_Saving"
+    ].sum()
+    return df2.to_json()
+
 def get_leaderboard_stats(accountId):
     dynamodb_client = create_dynamodb_client_local()
     try:
@@ -185,8 +194,26 @@ def get_leaderboard_monthly_stats_db(accountId):
     return df2.to_json()
 
 def get_leaderboard_yearly_stats_db(accountId):
-    monthyStats = get_leaderboard_stats(accountId)
-    df = pd.DataFrame(json_dy.loads(monthyStats))
+    yearlyStats = get_leaderboard_stats(accountId)
+    df = pd.DataFrame(json_dy.loads(yearlyStats))
+    df["Insert_At"] = pd.to_datetime(df["Insert_At"])
+    df2 = df.groupby(["UserId", pd.Grouper(key="Insert_At", freq="Y")])[
+        "Carbon_Saving"
+    ].sum()
+    return df2.to_json()
+
+def get_team_leaderboard_monthly_stats_db(accountId):
+    monthyTeamStats = get_leaderboard_stats(accountId)
+    df = pd.DataFrame(json_dy.loads(monthyTeamStats))
+    df["Insert_At"] = pd.to_datetime(df["Insert_At"])
+    df2 = df.groupby(["TeamId", pd.Grouper(key="Insert_At", freq="M")])[
+        "Carbon_Saving"
+    ].sum()
+    return df2.to_json()
+
+def get_team_leaderboard_yearly_stats_db(accountId):
+    yearlyTeamStats = get_leaderboard_stats(accountId)
+    df = pd.DataFrame(json_dy.loads(yearlyTeamStats))
     df["Insert_At"] = pd.to_datetime(df["Insert_At"])
     df2 = df.groupby(["UserId", pd.Grouper(key="Insert_At", freq="Y")])[
         "Carbon_Saving"

@@ -10,7 +10,8 @@ from queryFunctions import (
     get_single_user_points_per_month_by_week_db,
     get_single_user_points_per_week_per_activity_db,
     get_team_weekly_stats_db, get_single_user_points_ytd_by_activity_db, get_leaderboard_monthly_stats_db,
-    get_leaderboard_yearly_stats_db
+    get_leaderboard_yearly_stats_db, get_team_leaderboard_monthly_stats_db, get_team_leaderboard_yearly_stats_db,
+    get_team_monthly_stats_db
 )
 
 application = Flask(__name__)
@@ -85,14 +86,29 @@ def get_team_weekly_stats(teamId):
     teamData = get_team_weekly_stats_db(teamId)
     return teamData
 
-@application.route("/getLeaderboardMonthlyStats/<accountId>", methods=["GET"])
+@application.route("/getTeamMonthlyStats/<teamId>", methods=["GET"])
+def get_team_monthly_stats(teamId):
+    teamData = get_team_monthly_stats_db(teamId)
+    return teamData
+
+@application.route("/getUserLeaderboardMonthlyStats/<accountId>", methods=["GET"])
 def get_leaderboard_monthly_stats(accountId):
     monthlyStats = get_leaderboard_monthly_stats_db(accountId)
     return monthlyStats
 
-@application.route("/getLeaderboardYearlyStats/<accountId>", methods=["GET"])
+@application.route("/getUserLeaderboardYearlyStats/<accountId>", methods=["GET"])
 def get_leaderboard_yearly_stats(accountId):
     yearlyStats = get_leaderboard_yearly_stats_db(accountId)
+    return yearlyStats
+
+@application.route("/getTeamLeaderboardMonthlyStats/<accountId>", methods=["GET"])
+def get_team_leaderboard_monthly_stats(accountId):
+    monthlyStats = get_team_leaderboard_monthly_stats_db(accountId)
+    return monthlyStats
+
+@application.route("/getTeamLeaderboardYearlyStats/<accountId>", methods=["GET"])
+def get_team_leaderboard_yearly_stats(accountId):
+    yearlyStats = get_team_leaderboard_yearly_stats_db(accountId)
     return yearlyStats
 
 
