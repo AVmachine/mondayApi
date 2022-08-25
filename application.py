@@ -11,7 +11,7 @@ from queryFunctions import (
     get_single_user_points_per_week_per_activity_db,
     get_team_weekly_stats_db, get_single_user_points_ytd_by_activity_db, get_leaderboard_monthly_stats_db,
     get_leaderboard_yearly_stats_db, get_team_leaderboard_monthly_stats_db, get_team_leaderboard_yearly_stats_db,
-    get_team_monthly_stats_db
+    get_team_monthly_stats_db, get_single_user_points_per_year_by_month_db
 )
 
 application = Flask(__name__)
@@ -49,7 +49,7 @@ def get_single_user_points_per_month_by_week(userId):
 
 @application.route("/getSingleUserTotalPointsPerYearByMonth/<userId>", methods=["GET"])
 def get_single_user_points_per_year_by_month(userId):
-    listPointsYearByMonth = get_single_user_points_per_month_by_week_db(str(userId))
+    listPointsYearByMonth = get_single_user_points_per_year_by_month_db(str(userId))
     return listPointsYearByMonth
 
 @application.route(

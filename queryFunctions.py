@@ -75,6 +75,14 @@ def get_single_user_points_per_month_by_week_db(userId):
     jsonStr = df2.to_json()
     return jsonStr
 
+def get_single_user_points_per_year_by_month_db(userId):
+    userData = get_single_user_info(userId)
+    df = pd.DataFrame(json_dy.loads(userData))
+    df["Insert_At"] = pd.to_datetime(df["Insert_At"])
+    df2 = df.groupby([pd.Grouper(key="Insert_At", freq="M")])["Carbon_Saving"].sum()
+    jsonStr = df2.to_json()
+    return jsonStr
+
 
 def get_teams():
     dynamodb_client = create_dynamodb_client_cloud()
@@ -120,23 +128,21 @@ def get_single_user_points_per_week_per_activity_db(userId):
     userData = get_single_user_info(userId)
     df = pd.DataFrame(json_dy.loads(userData))
     df["Insert_At"] = pd.to_datetime(df["Insert_At"])
-    df2 = df.groupby(["Activity_Performed", pd.Grouper(key="Insert_At", freq="W-SUN")])[
+    df2 = df.groupby(["Activity_Performed", pd.Grouper(key="Insert_At", freq="W-SUN")], as_index=False)[
         "Carbon_Saving"
     ].sum()
-    jsonStr = df2.to_json()
-    print(jsonStr)
-    return jsonStr
+    change_to = json.dumps(df2.to_dict(orient='records'))
+    return change_to
 
 def get_single_user_points_ytd_by_activity_db(userId):
     userData = get_single_user_info(userId)
     df = pd.DataFrame(json_dy.loads(userData))
     df["Insert_At"] = pd.to_datetime(df["Insert_At"])
-    df2 = df.groupby(["Activity_Performed", pd.Grouper(key="Insert_At", freq="Y")])[
+    df2 = df.groupby(["Activity_Performed", pd.Grouper(key="Insert_At", freq="Y")],as_index=False)[
         "Carbon_Saving"
     ].sum()
-    jsonStr = df2.to_json()
-    print(jsonStr)
-    return jsonStr
+    change_to = json.dumps(df2.to_dict(orient='records'))
+    return change_to
 
 def get_team_weekly_stats_db(teamId):
     teamData = get_team(teamId)
@@ -184,34 +190,38 @@ def get_leaderboard_monthly_stats_db(accountId):
     monthyStats = get_leaderboard_stats(accountId)
     df = pd.DataFrame(json_dy.loads(monthyStats))
     df["Insert_At"] = pd.to_datetime(df["Insert_At"])
-    df2 = df.groupby(["UserId", pd.Grouper(key="Insert_At", freq="M")])[
+    df2 = df.groupby(["UserId", pd.Grouper(key="Insert_At", freq="M")], as_index=False)[
         "Carbon_Saving"
     ].sum()
-    return df2.to_json()
+    change_to = json.dumps(df2.to_dict(orient='records'))
+    return change_to
 
 def get_leaderboard_yearly_stats_db(accountId):
     yearlyStats = get_leaderboard_stats(accountId)
     df = pd.DataFrame(json_dy.loads(yearlyStats))
     df["Insert_At"] = pd.to_datetime(df["Insert_At"])
-    df2 = df.groupby(["UserId", pd.Grouper(key="Insert_At", freq="Y")])[
+    df2 = df.groupby(["UserId", pd.Grouper(key="Insert_At", freq="Y")], as_index=False)[
         "Carbon_Saving"
     ].sum()
-    return df2.to_json()
+    change_to = json.dumps(df2.to_dict(orient='records'))
+    return change_to
 
 def get_team_leaderboard_monthly_stats_db(accountId):
     monthyTeamStats = get_leaderboard_stats(accountId)
     df = pd.DataFrame(json_dy.loads(monthyTeamStats))
     df["Insert_At"] = pd.to_datetime(df["Insert_At"])
-    df2 = df.groupby(["TeamId", pd.Grouper(key="Insert_At", freq="M")])[
+    df2 = df.groupby(["TeamId", pd.Grouper(key="Insert_At", freq="M")], as_index=False)[
         "Carbon_Saving"
     ].sum()
-    return df2.to_json()
+    change_to = json.dumps(df2.to_dict(orient='records'))
+    return change_to
 
 def get_team_leaderboard_yearly_stats_db(accountId):
     yearlyTeamStats = get_leaderboard_stats(accountId)
     df = pd.DataFrame(json_dy.loads(yearlyTeamStats))
     df["Insert_At"] = pd.to_datetime(df["Insert_At"])
-    df2 = df.groupby(["UserId", pd.Grouper(key="Insert_At", freq="Y")])[
+    df2 = df.groupby(["TeamId", pd.Grouper(key="Insert_At", freq="Y")], as_index=False)[
         "Carbon_Saving"
     ].sum()
-    return df2.to_json()
+    change_to = json.dumps(df2.to_dict(orient='records'))
+    return change_to
