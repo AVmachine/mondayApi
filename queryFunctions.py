@@ -18,7 +18,7 @@ def create_dynamodb_client_cloud():
                         aws_secret_access_key=os.environ['secret_key'])
 
 def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
-    dynamodb_client = create_dynamodb_client_local()
+    dynamodb_client = create_dynamodb_client_cloud()
     newUuid = uuid.uuid4()
     newDateTime = datetime.now()
 
