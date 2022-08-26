@@ -45,7 +45,7 @@ def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
 
 
 def get_single_user_info(userId):
-    dynamodb_client = create_dynamodb_client_local()
+    dynamodb_client = create_dynamodb_client_cloud()
     try:
         response = dynamodb_client.scan(
             TableName="Activity",
@@ -85,7 +85,7 @@ def get_single_user_points_per_year_by_month_db(userId):
 
 
 def get_teams():
-    dynamodb_client = create_dynamodb_client_local()
+    dynamodb_client = create_dynamodb_client_cloud()
     try:
         response = dynamodb_client.scan(TableName="Activity")
         return response["Items"]
@@ -95,7 +95,7 @@ def get_teams():
 
 
 def get_team(teamId):
-    dynamodb_client = create_dynamodb_client_local()
+    dynamodb_client = create_dynamodb_client_cloud()
     try:
         response = dynamodb_client.scan(
             TableName= "Activity",
