@@ -18,7 +18,7 @@ def create_dynamodb_client_cloud():
                         aws_secret_access_key=os.environ['secret_key'])
 
 def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
-    dynamodb_client = create_dynamodb_client_cloud()
+    dynamodb_client = create_dynamodb_client_local()
     newUuid = uuid.uuid4()
     newDateTime = datetime.now()
 
@@ -45,7 +45,7 @@ def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
 
 
 def get_single_user_info(userId):
-    dynamodb_client = create_dynamodb_client_cloud()
+    dynamodb_client = create_dynamodb_client_local()
     try:
         response = dynamodb_client.scan(
             TableName="Activity",
@@ -85,7 +85,7 @@ def get_single_user_points_per_year_by_month_db(userId):
 
 
 def get_teams():
-    dynamodb_client = create_dynamodb_client_cloud()
+    dynamodb_client = create_dynamodb_client_local()
     try:
         response = dynamodb_client.scan(TableName="Activity")
         return response["Items"]
@@ -95,7 +95,7 @@ def get_teams():
 
 
 def get_team(teamId):
-    dynamodb_client = create_dynamodb_client_cloud()
+    dynamodb_client = create_dynamodb_client_local()
     try:
         response = dynamodb_client.scan(
             TableName= "Activity",
@@ -128,11 +128,12 @@ def get_single_user_points_per_week_per_activity_db(userId):
     userData = get_single_user_info(userId)
     df = pd.DataFrame(json_dy.loads(userData))
     df["Insert_At"] = pd.to_datetime(df["Insert_At"])
-    df2 = df.groupby(["Activity_Performed", pd.Grouper(key="Insert_At", freq="W-SUN")], as_index=False)[
+    df3 = df.groupby(["Activity_Performed", pd.Grouper(key="Insert_At", freq="W-SUN")])[
         "Carbon_Saving"
     ].sum()
-    change_to = json.dumps(df2.to_dict(orient='records'))
+    change_to = [ {"activity_performed":val[0][0],"insert_at":str(val[0][1]),"carbon_saving":val[1]} for index, val in enumerate(df3.iteritems())]
     return change_to
+    
 
 def get_single_user_points_ytd_by_activity_db(userId):
     userData = get_single_user_info(userId)
