@@ -72,16 +72,18 @@ def get_single_user_points_per_month_by_week_db(userId):
     df = pd.DataFrame(json_dy.loads(userData))
     df["Insert_At"] = pd.to_datetime(df["Insert_At"])
     df2 = df.groupby([pd.Grouper(key="Insert_At", freq="W-SUN")])["Carbon_Saving"].sum()
-    jsonStr = df2.to_json()
-    return jsonStr
+    change_to = [{"insert_at": str(val[0][1]), "carbon_saving": val[1]} for index, val
+                 in enumerate(df2.iteritems())]
+    return change_to
 
 def get_single_user_points_per_year_by_month_db(userId):
     userData = get_single_user_info(userId)
     df = pd.DataFrame(json_dy.loads(userData))
     df["Insert_At"] = pd.to_datetime(df["Insert_At"])
     df2 = df.groupby([pd.Grouper(key="Insert_At", freq="M")])["Carbon_Saving"].sum()
-    jsonStr = df2.to_json()
-    return jsonStr
+    change_to = [{"insert_at": str(val[0][1]), "carbon_saving": val[1]} for index, val
+                 in enumerate(df2.iteritems())]
+    return change_to
 
 
 def get_teams():
