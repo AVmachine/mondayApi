@@ -152,8 +152,10 @@ def get_team_weekly_stats_db(teamId):
     df2 = df.groupby(["Activity_Performed", pd.Grouper(key="Insert_At", freq="W-SUN")],as_index=False)[
         "Carbon_Saving"
     ].sum()
-    change_to = json.dumps(df2.to_dict(orient='records'))
+    change_to = [{"activity_performed": val[0][0], "insert_at": str(val[0][1]), "carbon_saving": val[1]} for index, val
+                 in enumerate(df2.iteritems())]
     return change_to
+
 
 def get_team_monthly_stats_db(teamId):
     teamData = get_team(teamId)
