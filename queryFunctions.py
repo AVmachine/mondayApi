@@ -17,10 +17,44 @@ def create_dynamodb_client_cloud():
                         aws_access_key_id=os.environ['access_key'],
                         aws_secret_access_key=os.environ['secret_key'])
 
+def check_for_activity_date_for_day(userId, activity, accountId):
+    dynamodb_client = create_dynamodb_client_cloud()
+    try:
+        currentDate = datetime.today().strftime('%Y-%m-%d')
+
+        response = dynamodb_client.scan(
+                TableName= "Activity",
+                FilterExpression= "#f5e40 = :f5e40 And #f5e41 = :f5e41 And #f5e42 = :f5e42 And #f5e43 = :f5e43",
+                ExpressionAttributeNames= {"#f5e40": "UserId",
+                                           "#f5e41": "Activity_Performed",
+                                           "#f5e42": "Insert_At",
+                                           "#f5e43": "AccountId"},
+                ExpressionAttributeValues= {":f5e40": {"S": userId},
+                                            ":f5e41": {"S": activity},
+                                            ":f5e42": {"S": str(currentDate)},
+                                            ":f5e43": {"S": accountId}
+                                            }
+        )
+
+        print(currentDate)
+        print(response)
+        if len(response["Items"]) > 0:
+            return True
+
+        return False
+    except BaseException as error:
+        return "Unknown error while querying: " + error.response["Error"]["Message"]
+
 def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
     dynamodb_client = create_dynamodb_client_cloud()
     newUuid = uuid.uuid4()
-    newDateTime = datetime.now()
+    newDateTime = datetime.today().strftime('%Y-%m-%d')
+
+
+    doesExist = check_for_activity_date_for_day(userId, activity, accountId)
+    if doesExist is True:
+        print("Activity and date already exist")
+        return False
 
     # Creates a new row in the CharityInfo table
     activityInfo = {
@@ -29,7 +63,7 @@ def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
             "ActivityId": {"S": str(newUuid)},
             "UserId": {"S": userId},
             "Activity_Performed": {"S": activity},
-            "Carbon_Saving": {"N": carbonSaving},
+            "Carbon_Saving": {"N": str(carbonSaving)},
             "Insert_At": {"S": str(newDateTime)},
             "TeamId": {"S": teamId},
             "AccountId": {"S": accountId},
