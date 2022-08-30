@@ -1,6 +1,5 @@
 from crypt import methods
 from flask import Flask, request, jsonify
-from flask_cors import CORS
 
 from queryFunctions import (
     insert_activity_db,
@@ -16,7 +15,6 @@ from queryFunctions import (
 )
 
 application = Flask(__name__)
-CORS(application)
 
 
 @application.route("/")
