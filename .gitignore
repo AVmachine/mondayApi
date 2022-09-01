@@ -7,4 +7,7 @@ venv
 templates
 /.idea
 __pycache__/
-update_activity.json
+.env
+Archive.zip
+server.py
+.DS_Store

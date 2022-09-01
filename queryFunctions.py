@@ -1,7 +1,7 @@
 from dynamodb_json import json_util as json_dy
 import uuid
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, date, timedelta
 import boto3
 import os
 import json
@@ -216,23 +216,37 @@ def get_leaderboard_stats(accountId):
     except BaseException as error:
         return "Unknown error while querying: " + error.response["Error"]["Message"]
 
+def last_day_of_month(any_day):
+    next_month = any_day.replace(day=28) + timedelta(days=4)
+    return next_month - timedelta(days=next_month.day)
+
+def get_leaderboard_monthly_stats(accountId):
+    dynamodb_client = create_dynamodb_client_cloud()
+    current_month_start = datetime.today().strftime("%Y-%m-01")
+    year = int(datetime.today().strftime("%Y"))
+    month = int(datetime.today().strftime("%m"))
+    current_month_end = last_day_of_month(date(year,month,1))
+    try:
+        response = dynamodb_client.scan(
+            TableName="Activity",
+            FilterExpression="#c2e10 BETWEEN :c2e10 AND :c2e11 And #c2e12 = :c2e12",
+            ExpressionAttributeNames={"#c2e10":"Insert_At","#c2e12":"AccountId"},
+            ExpressionAttributeValues={":c2e10": {"S":str(current_month_start)},":c2e11": {"S":str(current_month_end)},":c2e12": {"S":accountId}}
+        )
+        return response["Items"]
+        # Handle response
+    except BaseException as error:
+        return "Unknown error while querying: " + error.response["Error"]["Message"]
+
 def get_leaderboard_monthly_stats_db(accountId):
-    monthyStats = get_leaderboard_stats(accountId)
+    monthyStats = get_leaderboard_monthly_stats(accountId)
     df = pd.DataFrame(json_dy.loads(monthyStats))
     df["Insert_At"] = pd.to_datetime(df["Insert_At"])
     df2 = df.groupby(["UserId", pd.Grouper(key="Insert_At", freq="M")])[
         "Carbon_Saving"
     ].sum()
-    return df2.to_json()
-
-def get_leaderboard_monthly_stats_db(accountId):
-    monthyStats = get_leaderboard_stats(accountId)
-    df = pd.DataFrame(json_dy.loads(monthyStats))
-    df["Insert_At"] = pd.to_datetime(df["Insert_At"])
-    df2 = df.groupby(["UserId", pd.Grouper(key="Insert_At", freq="M")], as_index=False)[
-        "Carbon_Saving"
-    ].sum()
-    change_to = json.dumps(df2.to_dict(orient='records'))
+    change_to = [{"userid": val[0][0], "carbon_saving": val[1]} for index, val
+                 in enumerate(df2.iteritems())]
     return change_to
 
 def get_leaderboard_yearly_stats_db(accountId):
