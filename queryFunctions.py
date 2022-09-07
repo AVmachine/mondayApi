@@ -97,6 +97,8 @@ def get_single_user_info(userId):
 def get_single_user_total_points_db(userId):
     userData = get_single_user_info(userId)
     df = pd.DataFrame(json_dy.loads(userData))
+    if df.empty:
+        return 0;
     sumPoints = df["Carbon_Saving"].sum()
     return sumPoints
 
