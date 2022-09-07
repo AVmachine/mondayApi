@@ -262,7 +262,7 @@ def get_leaderboard_yearly_stats_db(accountId):
     return change_to
 
 def get_team_leaderboard_monthly_stats_db(accountId):
-    monthyTeamStats = get_leaderboard_stats(accountId)
+    monthyTeamStats = get_leaderboard_monthly_stats(accountId)
     df = pd.DataFrame(json_dy.loads(monthyTeamStats))
     df["Insert_At"] = pd.to_datetime(df["Insert_At"])
     df2 = df.groupby(["TeamId", pd.Grouper(key="Insert_At", freq="M")], as_index=False)[
