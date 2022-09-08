@@ -32,6 +32,7 @@ def insert_activity():
         requestData["Activity"],
         requestData["Carbon_Savings"],
         requestData["TeamId"],
+        requestData["Date"],
         requestData["AccountId"],
     )
     return "true"

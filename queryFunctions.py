@@ -17,11 +17,9 @@ def create_dynamodb_client_cloud():
                         aws_access_key_id=os.environ['access_key'],
                         aws_secret_access_key=os.environ['secret_key'])
 
-def check_for_activity_date_for_day(userId, activity, accountId):
+def check_for_activity_date_for_day(userId, activity, accountId, date):
     dynamodb_client = create_dynamodb_client_cloud()
     try:
-        currentDate = datetime.today().strftime('%Y-%m-%d')
-
         response = dynamodb_client.scan(
                 TableName= "Activity",
                 FilterExpression= "#f5e40 = :f5e40 And #f5e41 = :f5e41 And #f5e42 = :f5e42 And #f5e43 = :f5e43",
@@ -31,13 +29,11 @@ def check_for_activity_date_for_day(userId, activity, accountId):
                                            "#f5e43": "AccountId"},
                 ExpressionAttributeValues= {":f5e40": {"S": userId},
                                             ":f5e41": {"S": activity},
-                                            ":f5e42": {"S": str(currentDate)},
+                                            ":f5e42": {"S": str(date)},
                                             ":f5e43": {"S": accountId}
                                             }
         )
 
-        print(currentDate)
-        print(response)
         if len(response["Items"]) > 0:
             return True
 
@@ -45,13 +41,11 @@ def check_for_activity_date_for_day(userId, activity, accountId):
     except BaseException as error:
         return "Unknown error while querying: " + error.response["Error"]["Message"]
 
-def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
+def insert_activity_db(userId, activity, carbonSaving, teamId, date, accountId):
     dynamodb_client = create_dynamodb_client_cloud()
     newUuid = uuid.uuid4()
-    newDateTime = datetime.today().strftime('%Y-%m-%d')
 
-
-    doesExist = check_for_activity_date_for_day(userId, activity, accountId)
+    doesExist = check_for_activity_date_for_day(userId, activity, accountId, date)
     if doesExist is True:
         print("Activity and date already exist")
         return False
@@ -64,7 +58,7 @@ def insert_activity_db(userId, activity, carbonSaving, teamId, accountId):
             "UserId": {"S": userId},
             "Activity_Performed": {"S": activity},
             "Carbon_Saving": {"N": str(carbonSaving)},
-            "Insert_At": {"S": str(newDateTime)},
+            "Insert_At": {"S": str(date)},
             "TeamId": {"S": teamId},
             "AccountId": {"S": accountId},
         },
